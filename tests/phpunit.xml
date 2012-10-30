@@ -1,0 +1,7 @@
+<phpunit bootstrap="bootstrap.php">
+  <testsuites>
+    <testsuite name="Paw_Router">
+      <file>PawTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>
