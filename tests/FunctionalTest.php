@@ -7,15 +7,14 @@ class FunctionalTest extends PHPUnit_Extensions_Selenium2TestCase
 {
     public function setUp()
     {
-        $this->setBrowser('chrome');
+        $this->setBrowser('firefox');
         $this->setBrowserUrl('http://localhost/github/Arrouter/');
     }
 
     public function testGetRootDisplaysGreeting()
     {
-        $app = Arrouter::app();
-
-        $this->url('http://www.example.com/');
-        $this->assertEquals('Example WWW Page', $this->title());
+        $this->url('http://localhost/github/Arrouter/');
+        $body = $this->byCssSelector('h1');
+        $this->assertEquals('Hello, World!', $body->text());
     }
 }

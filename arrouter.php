@@ -1,9 +1,19 @@
 <?php 
+/**
+ * arrouter.php
+ *
+ * This file contains the definition for class Arrouter, which
+ * is a basic demonstration of the Front Controller pattern.
+ *
+ * PHP version 5.3
+ * 
+ * @author ifcanduela <ifcanduela@gmail.com>
+ */
 
 /**
  * A Front Controller.
  *
- * @author ifcanduela
+ * @author ifcanduela <ifcanduela@gmail.com>
  */
 class Arrouter
 {
@@ -145,7 +155,7 @@ class Arrouter
 
             /**
              * @param Arrouter   $app       Current instance of the application 
-             * @param array      $arguments List of arguments to be sent to the action
+             * @param array      $arguments List of arguments for the action
              */
             'beforeAction' => null,
 
@@ -158,7 +168,6 @@ class Arrouter
 
     /**
      * Private: use Arrouter::app();
-     * @param  string $getVarName Name of the GET variable that contains the URL
      */
     private function __construct()
     {
@@ -178,6 +187,9 @@ class Arrouter
 
     /**
      * Fetches the singleton instance of the Arrouter application.
+     *
+     * @param bool $reset Set to true to reset all data
+     * 
      * @return Arrouter Instance of the Arrouter application
      * @static
      */
@@ -194,6 +206,8 @@ class Arrouter
      * Set the character that separates URI segments.
      * 
      * @param string $separator A single character
+     * 
+     * @return Arrouter The Arrouter object 
      */
     public function setUriSeparator($separator)
     {
@@ -202,6 +216,8 @@ class Arrouter
         }
 
         $this->uriSeparator = $separator{0};
+
+        return $this;
     }
 
     /**
@@ -218,6 +234,8 @@ class Arrouter
      * Set the variable name of the GET parameter that carries the route.
      * 
      * @param string $variableName Name of the variable
+     * 
+     * @return Arrouter The Arrouter object
      */
     public function setUriVariableName($variableName)
     {
@@ -226,6 +244,8 @@ class Arrouter
         } else {
             throw new InvalidArgumentException("Function argument \$variableName must be a valid PHP variable name.");
         }
+
+        return $this;
     }
 
     /**
@@ -241,10 +261,12 @@ class Arrouter
     /**
      * Adds a route to the application.
      * 
-     * @param  string   $method     An request method
-     * @param  string   $route      URI pattern
-     * @param  callable $callable   Action to take if the actual route matches the pattern
-     * @param  bool     $exactMatch Exact matching or Fuzzy matching
+     * @param string   $method     An request method
+     * @param string   $route      URI pattern
+     * @param callable $action     Action to take if the actual route matches the pattern
+     * @param bool     $exactMatch Exact matching or Fuzzy matching
+     * 
+     * @return array               The route data
      */
     public function addRoute($method, $route, $action, $exactMatch = self::FUZZY_MATCH)
     {
@@ -264,69 +286,98 @@ class Arrouter
             $this->routes[$method] = array();
         }
 
-        $this->routes[$method][] = array(
+        $routeData = = array(
                 'route'    => $route,
                 'pattern'  => $exactMatch === self::EXACT_MATCH ? "~^$pattern\$~" : "~$pattern~",
                 'callable' => new ReflectionFunction($action),
             );
+
+        $this->routes[$method][] = $routeData;
+
+        return $routeData;
     }
 
     /**
      * Adds a GET route to the application.
      * 
-     * @param  string   $route      URL route to match against
-     * @param  callable $callable   Action to take upon a positive match
-     * @param  boolean  $exactMatch Perform a strict comparison
-     * @return int      Position of this route in nthe queue
+     * @param string   $route      URL route to match against
+     * @param callable $callable   Action to take upon a positive match
+     * @param boolean  $exactMatch Perform a strict comparison
+     * 
+     * @return array               The route data
      */
     public function get($route, $callable, $exactMatch = self::FUZZY_MATCH)
     {
-        $this->addRoute(self::METHOD_GET, $route, $callable, $exactMatch);
+        return $this->addRoute(self::METHOD_GET, $route, $callable, $exactMatch);
     }
 
     /**
      * Adds a POST route to the application.
      * 
-     * @param  string   $route      URL route to match against
-     * @param  callable $callable   Action to take upon a positive match
-     * @param  boolean  $exactMatch Perform a strict comparison
-     * @return int      Position of this route in nthe queue
+     * @param string   $route      URL route to match against
+     * @param callable $callable   Action to take upon a positive match
+     * @param boolean  $exactMatch Perform a strict comparison
+     * 
+     * @return array               The route data
      */
     public function post($route, $callable, $exactMatch = self::FUZZY_MATCH)
     {
-        $this->addRoute(self::METHOD_POST, $route, $callable, $exactMatch);
+        return $this->addRoute(self::METHOD_POST, $route, $callable, $exactMatch);
     }
 
     /**
      * Adds a PUT route to the application.
      * 
-     * @param  string   $route      URL route to match against
-     * @param  callable $callable   Action to take upon a positive match
-     * @param  boolean  $exactMatch Perform a strict comparison
-     * @return int      Position of this route in nthe queue
+     * @param string   $route      URL route to match against
+     * @param callable $callable   Action to take upon a positive match
+     * @param boolean  $exactMatch Perform a strict comparison
+     * 
+     * @return array               The route data
      */
     public function put($route, $callable, $exactMatch = self::FUZZY_MATCH)
     {
-        $this->addRoute(self::METHOD_PUT, $route, $callable, $exactMatch);
+        return $this->addRoute(self::METHOD_PUT, $route, $callable, $exactMatch);
     }
 
     /**
      * Adds a DELETE route to the application.
      * 
-     * @param  string   $route      URL route to match against
-     * @param  callable $callable   Action to take upon a positive match
-     * @param  boolean  $exactMatch Perform a strict comparison
-     * @return int      Position of this route in nthe queue
+     * @param string   $route      URL route to match against
+     * @param callable $callable   Action to take upon a positive match
+     * @param boolean  $exactMatch Perform a strict comparison
+     * 
+     * @return array               The route data
      */
     public function delete($route, $callable, $exactMatch = self::FUZZY_MATCH)
     {
-        $this->addRoute(self::METHOD_DELETE, $route, $callable, $exactMatch);
+        return $this->addRoute(self::METHOD_DELETE, $route, $callable, $exactMatch);
+    }
+
+    /**
+     * Adds a route to all route lists.
+     * 
+     * @param string   $route      URL route to match against
+     * @param callable $callable   Action to take upon a positive match
+     * @param boolean  $exactMatch Perform a strict comparison
+     * 
+     * @return array               The route data
+     */
+    public function any($route, $callable, $exactMatch = self::FUZZY_MATCH)
+    {
+        $get    = $this->get($route, $callable, $exactMatch);
+        $post   = $this->post($route, $callable, $exactMatch);
+        $put    = $this->put($route, $callable, $exactMatch);
+        $delete = $this->delete($route, $callable, $exactMatch);
+
+        return compact('get', 'post', 'put', 'delete');
     }
 
     /**
      * Deletes configured routes.
      * 
-     * @param  string $method Method for which to remove routes (null for all methods)
+     * @param string $method Method for which to remove routes (null for all methods)
+     * 
+     * @return null
      */
     public function clear($method = null)
     {
@@ -339,6 +390,8 @@ class Arrouter
 
     /**
      * Get the requested URI.
+     *
+     * @param string $url The current request URI
      * 
      * @return string The URI
      */
@@ -360,7 +413,8 @@ class Arrouter
     /**
      * Executes the application.
      * 
-     * @param  string $url URL to route
+     * @param string $url URL to route
+     * 
      * @return mixed  Return nvalue of the callable
      */
     public function run($url = null)
@@ -405,7 +459,8 @@ class Arrouter
     /**
      * Retrieves the first matching route.
      * 
-     * @param  string $uri The URI to match against
+     * @param string $uri The URI to match against
+     * 
      * @return array       
      */
     protected function findMatchingRoute($uri)
@@ -424,9 +479,10 @@ class Arrouter
     /**
      * Gets the arguments of the selected action closure.
      * 
-     * @param  [type] $route [description]
-     * @param  [type] $uri   [description]
-     * @return [type]        [description]
+     * @param array  $route A pre-configured route
+     * @param string $uri   Current requested URI
+     * 
+     * @return array Arguments for the callback
      */
     protected function getClosureArguments($route, $uri)
     {
@@ -455,8 +511,9 @@ class Arrouter
      *
      * Special segments: URL_PROTOCOL, URL_HOST, URL_PATH
      * 
-     * @param  int      $segment Segment key or number 
-     * @return string            The segment or false if it does not exist
+     * @param int $segment Segment key or number 
+     * 
+     * @return string The segment or false if it does not exist
      */
     public function segment($segment = 1)
     {
@@ -471,6 +528,8 @@ class Arrouter
 
     /**
      * Retrieves the canonical URL of the application.
+     *
+     * @param string $uri Additional URI segments
      * 
      * @return string The URL, ending with a forward slash
      */
@@ -482,8 +541,10 @@ class Arrouter
     /**
      * Invokes one of the callbacks.
      *  
-     * @param  string $type Type of callbacks
-     * @return mixed  Return value of the callbak
+     * @param string $type      Type of callbacks
+     * @param array  $arguments Arguments passed to the callback
+     * 
+     * @return mixed Return value of the callbak
      */
     protected function invokeCallback($type, array $arguments = null)
     {
@@ -499,6 +560,8 @@ class Arrouter
      * Assigns a callback to run before routing.
      * 
      * @param callable $callback Action to take before routing
+     *
+     * @return null
      */
     public function beforeRoute(/*callable*/ $callback)
     {
@@ -509,6 +572,8 @@ class Arrouter
      * Assigns a callback to run after routing.
      * 
      * @param callable $callback Action to take after routing
+     *
+     * @return null
      */
     public function afterRoute(/*callable*/ $callback)
     {
@@ -519,6 +584,8 @@ class Arrouter
      * Assigns a callback to run before running the action.
      * 
      * @param callable $callback Action to take before routing
+     *
+     * @return null
      */
     public function beforeAction(/*callable*/ $callback)
     {
@@ -529,12 +596,22 @@ class Arrouter
      * Assigns a callback to run after running the action.
      * 
      * @param callable $callback Action to take after the action
+     *
+     * @return null
      */
     public function afterAction(/*callable*/ $callback)
     {
         $this->callbacks[self::AFTER_ACTION] = $callback;
     }
 
+    /**
+     * Sets whether the run method should throw an exception if no
+     * valid route is found.
+     * 
+     * @param boolean $value True to throw Exception
+     * 
+     * @return boolean Current setting
+     */
     public function exitAfterRoutingFailure($value = null)
     {
         if (is_null($value)) {
