@@ -286,7 +286,7 @@ class Arrouter
             $this->routes[$method] = array();
         }
 
-        $routeData = = array(
+        $routeData = array(
                 'route'    => $route,
                 'pattern'  => $exactMatch === self::EXACT_MATCH ? "~^$pattern\$~" : "~$pattern~",
                 'callable' => new ReflectionFunction($action),
