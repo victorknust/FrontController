@@ -1,8 +1,23 @@
 <?php
 
-require 'arrouter.php';
+require 'mandarin/Mandarin.php';
 
-$app = Arrouter::app();
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['SERVER_NAME'] = 'localhost';
+$_SERVER['SCRIPT_NAME'] = '/dummy/bootstrap.php';
+$_SERVER['REQUEST_URI'] = '/';
+
+function setRequestUri($uri)
+{
+    $_SERVER['REQUEST_URI'] = $uri;
+}
+
+function setRequestMethod($method)
+{
+    $_SERVER['REQUEST_METHOD'] = $method;
+}
+
+$app = \mandarin\Mandarin::app();
 
 $app->get('/:name', function($name) use ($app) {
     echo "<h1>Hello, $name!</h1>";

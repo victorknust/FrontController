@@ -1,12 +1,15 @@
-# Arrouter
+# Front Controller
 
-Trying out the Front Controller pattern in PHP.
+Trying out the front controller/microframework pattern in PHP.
+
+Don't use this.
 
 ## Usage
 
     <?php
 
-    $app = Arrouter::app();
+    require 'mandarin/Mandarin.php';
+    $app = \mandarin\Mandarin::app();
 
     $app->get('/form', function() {
             ?>
@@ -22,7 +25,7 @@ Trying out the Front Controller pattern in PHP.
         });
 
     $app->get('/', function() {
-            echo "Nothing here, bud.";
+            echo "Nothing here, try /form.";
         });
 
     $result = $app->run();
@@ -30,3 +33,36 @@ Trying out the Front Controller pattern in PHP.
     if ($result->code === 404) {
         echo "Not found";
     }
+
+You can define a callback and use it like this:
+
+    <?php
+
+    require 'mandarin/Mandarin.php';
+    $app = \mandarin\Mandarin::app();
+
+    function myCallback($name)
+    {
+        return array("name" => ucfirst($name));
+    }
+
+    $app->get('/:name', 'myCallback');
+
+    $result = $app->run();
+
+    echo "Name = {$result->return_value['name']}";
+
+Or like this:
+
+    <?php
+
+    class MyCallback
+    {
+        public function run($name)
+        {
+            return array("name" => ucfirst($name));
+        }
+    }
+
+    $app->get('/:name', array('MyCallback', 'run'));
+
