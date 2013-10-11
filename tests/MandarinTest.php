@@ -8,7 +8,7 @@ class MandarinTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->app = \mandarin\Mandarin::app(true);
+        $this->app = \ifcanduela\mandarin\Mandarin::app(true);
     }
 
     public function tearDown()
@@ -30,8 +30,6 @@ class MandarinTest extends PHPUnit_Framework_TestCase
 
     public function testBaseMethodReturnsBaseUrlAndExtraSegments()
     {
-        $this->app = \mandarin\Mandarin::app();
-        
         $this->assertEquals('http://localhost/dummy/', $this->app->base());
         $this->assertEquals('http://localhost/dummy/controller/action', $this->app->base('controller/action'));
         $this->assertEquals('http://localhost/dummy/requested/path', $this->app->base('/requested/path/'));
@@ -39,18 +37,18 @@ class MandarinTest extends PHPUnit_Framework_TestCase
 
     public function testSegmentMethodReturnsEnvironmentValues()
     {
-        $this->assertEquals('http://', $this->app->segment(\mandarin\Mandarin::URL_PROTOCOL));
-        $this->assertEquals('localhost/', $this->app->segment(\mandarin\Mandarin::URL_HOST));
-        $this->assertEquals('dummy/', $this->app->segment(\mandarin\Mandarin::URL_PATH));
+        $this->assertEquals('http://', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PROTOCOL));
+        $this->assertEquals('localhost/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_HOST));
+        $this->assertEquals('dummy/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PATH));
 
         ob_start();
         $this->app->run('/');
         ob_end_clean();
 
-        $this->assertEquals('http://', $this->app->segment(\mandarin\Mandarin::URL_PROTOCOL));
-        $this->assertEquals('localhost/', $this->app->segment(\mandarin\Mandarin::URL_HOST));
-        $this->assertEquals('dummy/', $this->app->segment(\mandarin\Mandarin::URL_PATH));
-        $this->assertEquals('', $this->app->segment(\mandarin\Mandarin::URL_URI));
+        $this->assertEquals('http://', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PROTOCOL));
+        $this->assertEquals('localhost/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_HOST));
+        $this->assertEquals('dummy/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PATH));
+        $this->assertEquals('', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_URI));
     }
 
     public function testSegmentMethodReturnsRequestValues()
@@ -59,19 +57,19 @@ class MandarinTest extends PHPUnit_Framework_TestCase
         $this->app->run('/');
         ob_end_clean();
 
-        $this->assertEquals('http://', $this->app->segment(\mandarin\Mandarin::URL_PROTOCOL));
-        $this->assertEquals('localhost/', $this->app->segment(\mandarin\Mandarin::URL_HOST));
-        $this->assertEquals('dummy/', $this->app->segment(\mandarin\Mandarin::URL_PATH));
-        $this->assertEquals('', $this->app->segment(\mandarin\Mandarin::URL_URI));
+        $this->assertEquals('http://', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PROTOCOL));
+        $this->assertEquals('localhost/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_HOST));
+        $this->assertEquals('dummy/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PATH));
+        $this->assertEquals('', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_URI));
 
         ob_start();
         $this->app->run('/alpha/beta/gamma');
         ob_end_clean();
 
-        $this->assertEquals('http://', $this->app->segment(\mandarin\Mandarin::URL_PROTOCOL));
-        $this->assertEquals('localhost/', $this->app->segment(\mandarin\Mandarin::URL_HOST));
-        $this->assertEquals('dummy/', $this->app->segment(\mandarin\Mandarin::URL_PATH));
-        $this->assertEquals('alpha/beta/gamma', $this->app->segment(\mandarin\Mandarin::URL_URI));
+        $this->assertEquals('http://', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PROTOCOL));
+        $this->assertEquals('localhost/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_HOST));
+        $this->assertEquals('dummy/', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_PATH));
+        $this->assertEquals('alpha/beta/gamma', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_URI));
         $this->assertEquals('alpha', $this->app->segment(1));
         $this->assertEquals('beta', $this->app->segment(2));
         $this->assertEquals('gamma', $this->app->segment(3));
@@ -273,7 +271,7 @@ class MandarinTest extends PHPUnit_Framework_TestCase
         $this->app->get('/', function()
         {
             echo 'Hello';
-        }, \mandarin\Mandarin::EXACT_MATCH);
+        }, \ifcanduela\mandarin\Mandarin::EXACT_MATCH);
 
         ob_start();
         $this->app->run('');
@@ -418,9 +416,9 @@ class MandarinTest extends PHPUnit_Framework_TestCase
     public function testUriStringCreationFromGetVariable()
     {
         $_GET['p'] = 'alpha/beta/gamma';
-        $this->app = \mandarin\Mandarin::app(true);
+        $this->app = \ifcanduela\mandarin\Mandarin::app(true);
 
-        $this->assertEquals('alpha/beta/gamma', $this->app->segment(\mandarin\Mandarin::URL_URI));
+        $this->assertEquals('alpha/beta/gamma', $this->app->segment(\ifcanduela\mandarin\Mandarin::URL_URI));
     }
 
     public function testForwardSlashDoesNotMatter()

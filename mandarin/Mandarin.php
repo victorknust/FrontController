@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Mandarin.php
  *
@@ -9,7 +9,7 @@
  * @author ifcanduela <ifcanduela@gmail.com>
  */
 
-namespace mandarin;
+namespace ifcanduela\mandarin;
 
 /**
  * Mandarin: A front controller.
