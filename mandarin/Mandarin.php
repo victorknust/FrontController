@@ -69,6 +69,12 @@ class Mandarin
     protected $uriSeparator = '/';
 
     /**
+     * Default matching type
+     * @var boolean
+     */
+    private $defaultMatchingType = self::FUZZY_MATCH;
+
+    /**
      * URL segments.
      * @var  array
      */
@@ -124,11 +130,6 @@ class Mandarin
      * @var Mandarin
      */
     protected static $instance = null;
-
-    /**
-     * 
-     */
-    protected $exitAfterRoutingFailure = true;
 
     /**
      * HTTP method of the current request.
@@ -281,6 +282,27 @@ class Mandarin
     }
 
     /**
+     * Set the default matching type.
+     * 
+     * @param boolean $matchingType True for exact matching, false for fuzzy matching
+     */
+    public function setMatchingType($matchingType)
+    {
+        if (!is_bool($matchingType)) {
+            throw new \InvalidArgumentException("Function argument \$matchingType must be of type boolean.");
+        }
+
+        $this->defaultMatchingType = $matchingType;
+
+        return $this;
+    }
+
+    public function getMatchingType()
+    {
+        return $this->defaultMatchingType;
+    }
+
+    /**
      * Adds a route to the application.
      * 
      * @param string   $method     An request method
@@ -288,33 +310,45 @@ class Mandarin
      * @param callable $action     Action to take if the actual route matches the pattern
      * @param bool     $exactMatch Exact matching or Fuzzy matching
      * 
-     * @return array               The route data
+     * @return array The route data
      */
-    public function addRoute($method, $route, $action, $exactMatch = self::FUZZY_MATCH)
+    public function addRoute($method, $routes, $action, $exactMatch = null)
     {
         # Ensure the action is callable
         if (!is_callable($action)) {
             throw new \InvalidArgumentException("The \$action argument must be callable");
         }
 
-        # Prepare the url
-        $route = trim((string) $route, '/');
-
-        # Prepare the pattern
-        $pattern = preg_replace('~:([^/]+)~', '(?P<$1>[^\/]+)', $route);
-
-        # Create the routes array for the request method
-        if (!isset($this->routes[$method])) {
-            $this->routes[$method] = array();
+        # Treat a single route as an array
+        if (!is_array($routes)) {
+            $routes = array($routes);
         }
 
-        $routeData = array(
-                'route'    => $route,
-                'pattern'  => $exactMatch === self::EXACT_MATCH ? "~^$pattern\$~" : "~$pattern~",
-                'callable' => new \ReflectionFunction($action),
-            );
+        # Configure default matching type
+        if (in_array($exactMatch, array(self::FUZZY_MATCH, self::EXACT_MATCH))) {
+             $exactMatch = $this->getMatchingType();
+        }
 
-        $this->routes[$method][] = $routeData;
+        foreach ($routes as $route) {
+            # Prepare the url
+            $route = trim((string) $route, '/');
+
+            # Prepare the pattern
+            $pattern = preg_replace('~:([^/]+)~', '(?P<$1>[^\/]+)', $route);
+
+            # Create the routes array for the request method
+            if (!isset($this->routes[$method])) {
+                $this->routes[$method] = array();
+            }
+
+            $routeData = array(
+                    'route'    => $route,
+                    'pattern'  => $exactMatch === self::EXACT_MATCH ? "~^$pattern\$~" : "~$pattern~",
+                    'callable' => new \ReflectionFunction($action),
+                );
+
+            $this->routes[$method][] = $routeData;
+        }
 
         return $routeData;
     }
@@ -456,6 +490,7 @@ class Mandarin
 
         # If there is no applicable route pattern, display a 404
         if ($route === null) {
+            $this->invokeCallback('404');
             return (object) array('code' => 404);
         }
 
@@ -579,7 +614,27 @@ class Mandarin
     }
 
     /**
+     * Defines a callback for an event.
+     *
+     * Current available callbacks are:
+     *  - 404
+     *  - beforeRoute
+     *  - afterRoute
+     *  - beforeAction
+     *  - afterAction
+     *
+     * @param string $event The event name
+     * @param callable $callback The function to execute
+     */
+    public function on($event, /*callable*/ $callback)
+    {
+        $this->callbacks[$event] = $callback;
+    }
+
+    /**
      * Assigns a callback to run before routing.
+     *
+     * Shortcut for on('beforeRoute', $callable)
      * 
      * @param callable $callback Action to take before routing
      *
@@ -587,7 +642,7 @@ class Mandarin
      */
     public function beforeRoute(/*callable*/ $callback)
     {
-        $this->callbacks[self::BEFORE_ROUTE] = $callback;
+        $this->on(self::BEFORE_ROUTE, $callback);
     }
 
     /**
@@ -599,7 +654,7 @@ class Mandarin
      */
     public function afterRoute(/*callable*/ $callback)
     {
-        $this->callbacks[self::AFTER_ROUTE] = $callback;
+        $this->on(self::AFTER_ROUTE, $callback);
     }
 
     /**
@@ -611,7 +666,7 @@ class Mandarin
      */
     public function beforeAction(/*callable*/ $callback)
     {
-        $this->callbacks[self::BEFORE_ACTION] = $callback;
+        $this->on(self::BEFORE_ACTION, $callback);
     }
 
     /**
@@ -623,23 +678,19 @@ class Mandarin
      */
     public function afterAction(/*callable*/ $callback)
     {
-        $this->callbacks[self::AFTER_ACTION] = $callback;
+        $this->on(self::AFTER_ACTION, $callback);
     }
 
     /**
-     * Sets whether the run method should throw an exception if no
-     * valid route is found.
+     * Makes the run method execute as the script ends.
      * 
-     * @param boolean $value True to throw Exception
-     * 
-     * @return boolean Current setting
+     * @param string $url URL to route
+     * @return Mandarin The app object
      */
-    public function exitAfterRoutingFailure($value = null)
+    public function autoRun($url = null)
     {
-        if (is_null($value)) {
-            return $this->exitAfterRoutingFailure;
-        } else {
-            $this->exitAfterRoutingFailure = (bool) $value;
-        }
+        register_shutdown_function(array($this, 'run'), $url);
+        
+        return $this;
     }
 }
