@@ -9,22 +9,20 @@ Don't use this.
     <?php
 
     require 'mandarin/Mandarin.php';
-    $app = \mandarin\Mandarin::app();
+    use \ifcanduela\mandarin\Mandarin;
 
-    $app->get('/form', function() {
-            ?>
-                <form action="greeting" method="post">
-                    <input type="text" name="location" value="World">
-                    <input type="submit">
-                </form>
-            <?php
-        }, $app::STRICT_MATCHING);
+    $app = Mandarin::app();
+
+    $app->get('/form/:section', function($section) {
+            require $section . '.html';
+        }, Mandarin::EXACT_MATCH);
 
     $app->post('/greeting', function() {
             echo "Hello, {$this->post['location']}!";
         });
 
-    $app->get('/', function() {
+    # two routes with the same handler
+    $app->get(array('/', '/home'), function() {
             echo "Nothing here, try /form.";
         });
 
@@ -34,7 +32,9 @@ Don't use this.
         echo "Not found";
     }
 
-You can define a callback and use it like this:
+### Actions
+
+You can define a callback and attach it to a route like this:
 
     <?php
 
@@ -66,3 +66,44 @@ Or like this:
 
     $app->get('/:name', array('MyCallback', 'run'));
 
+### Callback Hooks
+
+There are four hooks for callbacks:
+
+- `beforeRoute`
+- `afterRoute`
+- `beforeAction`
+- `afterAction`
+
+There are two ways to attach the callbacks:
+
+    $app->beforeAction(function() { ... });
+
+    $app->on('AfterRoute', function() { ... });
+
+Using the later method you can attach a `404 Not Found` handler, too:
+
+    $app->on('404', 'callable_handler');
+
+## Settings
+
+### AutoRun
+
+By calling `autoRun()`, the `run()` method will be called automatically as the scripts ends.
+
+    $app = Mandarin::app()->autoRun();
+
+### Matching type
+
+The default route-matching behavior is *fuzzy*, meaning that it will only match any part of a route. You
+can change that in a route-by-route basis or by using the `setMatchgingtype()` method:
+
+    $app->setMatchingType(Mandarin::EXACT_MATCHING);
+
+### URL data
+
+By default the class attempts to get the forward slash-delimited segments from a *GET* variable 
+called `p`. You can change this with the following two calls:
+
+    $app->setUriVariableName('path');
+    $app->setUriSeparator('|');
